@@ -1,0 +1,44 @@
+services:
+  frontend:
+    image: expense-frontend:latest
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: "http://localhost:8080/api"
+    ports:
+      - 8081:80
+    networks:
+      - expense-tracker
+    container_name: expense-frontend-container
+
+  backend:
+    image: expense-backend:latest
+    build: ./backend
+    ports:
+      - 8080:5001
+    environment:
+      DATABASE_HOST: db
+    networks:
+      - expense-tracker
+    container_name: expense-backend-container
+
+  db:
+    image: postgres:latest
+    volumes:
+      - expense-tracker-db-vol:/var/lib/postgresql/data:rw
+      - ./db:/docker-entrypoint-initdb.d:ro
+    environment:
+      - POSTGRES_PASSWORD=top-secret
+      - POSTGRES_DB=expense_tracker
+      - POSTGRES_USER=expense_tracker
+    networks:
+      - expense-tracker
+    container_name: expense-db
+
+volumes:
+  expense-tracker-db-vol:
+    name: expense-tracker-db-vol
+
+networks:
+  expense-tracker:
+    name: expense-tracker

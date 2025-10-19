@@ -1,0 +1,47 @@
+services:
+  # lb:
+  #   image: traefik:v3
+  #   restart: unless-stopped
+  #   ports:
+  #     - 9000:8080
+  #     - 8080:80
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   command:
+  #     - "--api.insecure=true"
+  #     - "--api.dashboard=true"
+  #     - "--providers.docker=true"
+  #     - "--entrypoints.web.address=:80"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: "http://localhost:8080/api"
+    ports:
+      - 8080:80
+    # restart: unless-stopped
+    # scale: 3
+
+  backend:
+    build: ./backend
+    ports:
+      - 8081:5001
+    environment:
+      DATABASE_HOST: db
+    # depends_on:
+    #   - db
+    # scale: 2
+
+  db:
+    image: postgres:latest
+    volumes:
+      - db-vol:/var/lib/postgresql/data:rw
+      - ./db:/docker-entrypoint-initdb.d:ro
+    environment:
+      - POSTGRES_PASSWORD=top-secret
+      - POSTGRES_DB=expense_tracker
+      - POSTGRES_USER=expense_tracker
+
+volumes:
+  db-vol:
