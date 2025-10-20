@@ -31,6 +31,7 @@ services:
       - POSTGRES_PASSWORD=top-secret
       - POSTGRES_DB=expense_tracker
       - POSTGRES_USER=expense_tracker
+
     networks:
       - expense-tracker
     container_name: expense-db
